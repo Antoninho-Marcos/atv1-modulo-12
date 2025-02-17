@@ -1,0 +1,60 @@
+import 'package:flutter/material.dart';
+import '../controllers/planet_controller.dart';
+import '../models/planet.dart';
+import 'planet_form.dart';
+import 'planet_details.dart';
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final PlanetController controller = PlanetController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Planetas')),
+      body: FutureBuilder<List<Planet>>(
+        future: controller.fetchPlanets(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+          final planets = snapshot.data!;
+          return ListView.builder(
+            itemCount: planets.length,
+            itemBuilder: (context, index) {
+              final planet = planets[index];
+              return ListTile(
+                title: Text(planet.name),
+                subtitle: Text(planet.nickname ?? 'Sem apelido'),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => PlanetDetails(planet: planet),
+                  ));
+                },
+                trailing: IconButton(
+                  icon: Icon(Icons.delete, color: Colors.red),
+                  onPressed: () async {
+                    await controller.deletePlanet(planet.id!);
+                    setState(() {});
+                  },
+                ),
+              );
+            },
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) => PlanetForm(),
+          )).then((_) => setState(() {}));
+        },
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+}
