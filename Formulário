@@ -1,0 +1,70 @@
+import 'package:flutter/material.dart';
+import '../controllers/planet_controller.dart';
+import '../models/planet.dart';
+
+class PlanetForm extends StatefulWidget {
+  @override
+  _PlanetFormState createState() => _PlanetFormState();
+}
+
+class _PlanetFormState extends State<PlanetForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _distanceController = TextEditingController();
+  final _sizeController = TextEditingController();
+  final _nicknameController = TextEditingController();
+  final PlanetController controller = PlanetController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Adicionar Planeta')),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(labelText: 'Nome do Planeta'),
+                validator: (value) => value!.isEmpty ? 'Campo obrigatório' : null,
+              ),
+              TextFormField(
+                controller: _distanceController,
+                decoration: InputDecoration(labelText: 'Distância do Sol (UA)'),
+                keyboardType: TextInputType.number,
+                validator: (value) => (double.tryParse(value!) ?? 0) > 0 ? null : 'Número inválido',
+              ),
+              TextFormField(
+                controller: _sizeController,
+                decoration: InputDecoration(labelText: 'Tamanho (km)'),
+                keyboardType: TextInputType.number,
+                validator: (value) => (double.tryParse(value!) ?? 0) > 0 ? null : 'Número inválido',
+              ),
+              TextFormField(
+                controller: _nicknameController,
+                decoration: InputDecoration(labelText: 'Apelido (Opcional)'),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    await controller.addPlanet(Planet(
+                      name: _nameController.text,
+                      distance: double.parse(_distanceController.text),
+                      size: double.parse(_sizeController.text),
+                      nickname: _nicknameController.text,
+                    ));
+                    Navigator.pop(context);
+                  }
+                },
+                child: Text('Salvar'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
